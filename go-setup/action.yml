@@ -9,6 +9,10 @@ inputs:
   private-token:
     description: 'Token for accessing private Sourcegraph repos'
     required: true
+  goprivate:
+    description: 'Comma-separated list of module path prefixes for GOPRIVATE'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -26,5 +30,7 @@ runs:
     - name: Set Go environment
       shell: bash
       run: |
-        echo "GOPRIVATE=github.com/sourcegraph/*" >> $GITHUB_ENV
+        if [ -n "${{ inputs.goprivate }}" ]; then
+          echo "GOPRIVATE=${{ inputs.goprivate }}" >> $GITHUB_ENV
+        fi
         echo "GOPROXY=https://proxy.golang.org" >> $GITHUB_ENV
