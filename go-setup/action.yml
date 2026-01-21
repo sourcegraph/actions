@@ -1,0 +1,30 @@
+name: 'Go Setup'
+description: 'Setup Go with private Sourcegraph repo access'
+
+inputs:
+  go-version-file:
+    description: 'Path to go.mod or go.work file to determine Go version'
+    required: false
+    default: 'go.mod'
+  private-token:
+    description: 'Token for accessing private Sourcegraph repos'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: ${{ inputs.go-version-file }}
+
+    - name: Configure git for private repos
+      shell: bash
+      run: |
+        git config --global url."https://${{ inputs.private-token }}@github.com/sourcegraph/".insteadOf "https://github.com/sourcegraph/"
+
+    - name: Set Go environment
+      shell: bash
+      run: |
+        echo "GOPRIVATE=github.com/sourcegraph/*" >> $GITHUB_ENV
+        echo "GOPROXY=https://proxy.golang.org" >> $GITHUB_ENV
