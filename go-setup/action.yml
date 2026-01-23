@@ -2,6 +2,10 @@ name: 'Go Setup'
 description: 'Setup Go with private Sourcegraph repo access'
 
 inputs:
+  go-version:
+    description: 'Go version to use (overrides go-version-file if set)'
+    required: false
+    default: ''
   go-version-file:
     description: 'Path to go.mod or go.work file to determine Go version'
     required: false
@@ -20,6 +24,7 @@ runs:
     - name: Install Go
       uses: actions/setup-go@v5
       with:
+        go-version: ${{ inputs.go-version }}
         go-version-file: ${{ inputs.go-version-file }}
 
     - name: Configure git for private repos
