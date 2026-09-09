@@ -1,14 +1,8 @@
-# Sourcegraph Actions
-
-Reusable GitHub Actions for Sourcegraph repositories.
-
-## Available Actions
-
-### go-setup
+# `go-setup`
 
 Sets up Go with private Sourcegraph repository access.
 
-**Usage:**
+## Usage
 
 ```yaml
 steps:
@@ -18,14 +12,14 @@ steps:
       private-token: ${{ secrets.PRIVATE_SG_ACCESS_TOKEN }}
 ```
 
-**Inputs:**
+## Inputs
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
 | `private-token` | Yes | - | Token for accessing private Sourcegraph repos |
 | `go-version-file` | No | `go.mod` | Path to go.mod or go.work file to determine Go version |
 
-**What it does:**
+## What it does
 
 1. Installs Go using the version from your `go.mod`
 2. Configures git to access private `github.com/sourcegraph/*` repos
