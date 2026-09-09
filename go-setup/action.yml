@@ -1,26 +1,26 @@
-name: 'Go Setup'
-description: 'Setup Go with private Sourcegraph repo access'
+name: "Go Setup"
+description: "Setup Go with private Sourcegraph repo access"
 
 inputs:
   go-version:
-    description: 'Go version to use (overrides go-version-file if set)'
+    description: "Go version to use (overrides go-version-file if set)"
     required: false
-    default: ''
+    default: ""
   go-version-file:
-    description: 'Path to go.mod or go.work file to determine Go version'
+    description: "Path to go.mod or go.work file to determine Go version"
     required: false
-    default: 'go.mod'
+    default: "go.mod"
   private-token:
-    description: 'Token for accessing private Sourcegraph repos'
+    description: "Token for accessing private Sourcegraph repos"
     required: false
-    default: ''
+    default: ""
   goprivate:
-    description: 'Comma-separated list of module path prefixes for GOPRIVATE'
+    description: "Comma-separated list of module path prefixes for GOPRIVATE"
     required: false
-    default: ''
+    default: ""
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Install Go
       uses: actions/setup-go@v5

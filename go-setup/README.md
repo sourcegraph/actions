@@ -14,10 +14,10 @@ steps:
 
 ## Inputs
 
-| Input | Required | Default | Description |
-|-------|----------|---------|-------------|
-| `private-token` | Yes | - | Token for accessing private Sourcegraph repos |
-| `go-version-file` | No | `go.mod` | Path to go.mod or go.work file to determine Go version |
+| Input             | Required | Default  | Description                                            |
+| ----------------- | -------- | -------- | ------------------------------------------------------ |
+| `private-token`   | Yes      | -        | Token for accessing private Sourcegraph repos          |
+| `go-version-file` | No       | `go.mod` | Path to go.mod or go.work file to determine Go version |
 
 ## What it does
 
