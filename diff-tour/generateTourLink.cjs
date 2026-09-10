@@ -1,13 +1,57 @@
 /**
  * @file This file is written in plain JavaScript to remove an extra build step, but we should use the @ts-check
  * directive and JSDoc comments to make sure the logic is still type-safe.
+ *
+ * @todo 2026-09-10 - This file recreates local versions of the `AsyncFunctionArguments` type from
+ * `@actions/github-script`.so that we can keep this file fully self-contained without having to bring in typical JS/TS
+ * tooling. If this repo gets to the point where it needs multiple JS scripts, consider ripping out these local files
+ * in favor of the package straight from GitHub.
  */
 //@ts-check
+
+/** @type {{log: (...args: unknown[]) => void}} */
+const console = /** @type {any} */ (globalThis).console
+
+/**
+ * @typedef {object} PullRequest
+ * @property {number} number
+ * @property {boolean} merged
+ * @property {string} merge_commit_sha
+ * @property {{ref: string}} base
+ * @property {{ref: string}} head
+ */
+
+/**
+ * @typedef {object} Context
+ * @property {{pull_request?: PullRequest}} payload
+ * @property {{owner: string, repo: string}} repo
+ */
+
+/**
+ * @typedef {object} Comment
+ * @property {number} id
+ * @property {string | null | undefined} body
+ */
+
+/**
+ * @typedef {object} Github
+ * @property {object} rest
+ * @property {object} rest.issues
+ * @property {(params: {owner: string, repo: string, issue_number: number}) => Promise<{data: Comment[]}>} rest.issues.listComments
+ * @property {(params: {owner: string, repo: string, comment_id: number, body: string}) => Promise<unknown>} rest.issues.updateComment
+ * @property {(params: {owner: string, repo: string, issue_number: number, body: string}) => Promise<unknown>} rest.issues.createComment
+ */
+
+/**
+ * @typedef {object} GenerateTourLinkArgs
+ * @property {Github} github
+ * @property {Context} context
+ */
 
 const instance = "https://sourcegraph.sourcegraph.com"
 const diffTourCommentMarker = "<!-- difftour-link -->"
 
-/** @param {import('@actions/github-script').AsyncFunctionArguments} args */
+/** @param {GenerateTourLinkArgs} args */
 async function generateTourLink({ github, context }) {
 	const pullRequest = context.payload.pull_request
 	if (pullRequest === undefined) {
