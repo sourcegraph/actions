@@ -3,9 +3,9 @@
  * directive and JSDoc comments to make sure the logic is still type-safe.
  *
  * @todo 2026-09-10 - This file recreates local versions of the `AsyncFunctionArguments` type from
- * `@actions/github-script`.so that we can keep this file fully self-contained without having to bring in typical JS/TS
- * tooling. If this repo gets to the point where it needs multiple JS scripts, consider ripping out these local files
- * in favor of the package straight from GitHub.
+ * `@actions/github-script`.so that we can keep this file fully self-contained and type-safe without having to bring in
+ * typical JS/TS tooling. If this repo gets to the point where it needs multiple JS scripts, consider ripping out these
+ * local types in favor of bringing in the package straight from GitHub.
  */
 //@ts-check
 
