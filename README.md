@@ -7,6 +7,7 @@ Reusable GitHub Actions for Sourcegraph repositories.
 | Action | Description |
 |--------|-------------|
 | [go-setup](./go-setup) | Setup Go with private Sourcegraph repository access |
+| [diff-tour](./diff-tour) | Generate a link to the Diff Tour for a PR |
 
 ## Usage
 
