@@ -1,10 +1,5 @@
-# `diff-tour`
+name: Diff Tour link
 
-Generates a link to the Diff Tour for a PR and posts it as a PR comment.
-
-## Usage
-
-```yaml
 on:
   pull_request:
     # `closed` fires on merge, so the comment is updated to link the merge commit
@@ -22,17 +17,7 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository
       && (github.event.action != 'closed' || github.event.pull_request.merged)
     steps:
-      - uses: sourcegraph/actions/diff-tour@main
-```
-
-## Inputs
-
-This action has no inputs.
-
-## What it does
-
-1. Builds a Diff Tour URL for the PR — a commit link if the PR is merged, or
-   a branch compare link if it's still open. The repo must be indexed on
-   sourcegraph.sourcegraph.com as `<github host>/<owner>/<repo>`
-2. Creates a PR comment with the link, or updates the existing one if it has
-   already posted a comment
+      # A local `uses: ./path` needs the repo checked out first
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Use this repo's copy so PRs to diff-tour exercise their own changes
+      - uses: ./diff-tour

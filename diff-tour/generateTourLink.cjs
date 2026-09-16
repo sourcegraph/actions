@@ -25,6 +25,7 @@ const console = /** @type {any} */ (globalThis).console
  * @typedef {object} Context
  * @property {{pull_request?: PullRequest}} payload
  * @property {{owner: string, repo: string}} repo
+ * @property {string} serverUrl
  */
 
 /**
@@ -49,6 +50,8 @@ const console = /** @type {any} */ (globalThis).console
  */
 
 const instance = "https://sourcegraph.sourcegraph.com"
+// Hidden HTML comment embedded in the PR comment body, so re-runs can find and
+// update the comment this action posted earlier instead of adding a new one.
 const diffTourCommentMarker = "<!-- difftour-link -->"
 
 /** @param {GenerateTourLinkArgs} args */
@@ -61,11 +64,19 @@ async function generateTourLink({ github, context }) {
 	/** @type {string} */
 	let url
 	const { repo, owner } = context.repo
-	const repoLink = `${owner}/${repo}`
+	// Sourcegraph's /r/<name> route looks the name up literally, and repos are
+	// named by their full code host path, e.g. github.com/sourcegraph/docs.
+	// serverUrl is GITHUB_SERVER_URL, so this also works on GitHub Enterprise.
+	const codeHost = new URL(context.serverUrl).host
+	const repoLink = `${codeHost}/${owner}/${repo}`
 	if (pullRequest.merged) {
+		// The head branch is usually deleted after merge, so a branch compare
+		// link would break. Link the merge commit instead; it's permanent.
 		const commit = encodeURIComponent(pullRequest.merge_commit_sha)
 		url = `${instance}/r/${repoLink}/-/commit/${commit}?mode=Tour`
 	} else {
+		// Open PR: compare base...head by branch name. Both branches must exist
+		// in this repo, which is why the workflow `if:` skips fork PRs.
 		const base = encodeURIComponent(pullRequest.base.ref)
 		const head = encodeURIComponent(pullRequest.head.ref)
 		url = `${instance}/r/${repoLink}/-/compare/${base}...${head}?mode=Tour`
