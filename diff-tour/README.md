@@ -11,6 +11,8 @@ on:
     # `closed` fires on merge, so the comment is updated to link the merge commit
     types: [opened, synchronize, reopened, edited, closed]
 
+# The only permission needed. The action does not check out your repo, so
+# `contents: read` is not required, even for private repos.
 permissions:
   pull-requests: write
 

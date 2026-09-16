@@ -18,7 +18,11 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository
       && (github.event.action != 'closed' || github.event.pull_request.merged)
     steps:
-      # A local `uses: ./path` needs the repo checked out first
+      # This repo differs from consumers: it runs its own copy of the action
+      # via a local path so PRs to diff-tour exercise their own changes. Local
+      # `uses: ./path` requires the repo checked out first, and checkout works
+      # here without `contents: read` only because this repo is public.
+      # Consumers use `uses: sourcegraph/actions/diff-tour@main` and need no
+      # checkout; see diff-tour/README.md.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      # Use this repo's copy so PRs to diff-tour exercise their own changes
       - uses: ./diff-tour
