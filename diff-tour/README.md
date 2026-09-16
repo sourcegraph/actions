@@ -31,5 +31,8 @@ This action has no inputs.
 
 ## What it does
 
-1. Builds a Diff Tour URL for the PR — a commit link if the PR is merged, or a branch compare link if it's still open
-2. Creates a PR comment with the link, or updates the existing one if it has already posted a comment
+1. Builds a Diff Tour URL for the PR — a commit link if the PR is merged, or
+   a branch compare link if it's still open. The repo must be indexed on
+   sourcegraph.sourcegraph.com as `<github host>/<owner>/<repo>`
+2. Creates a PR comment with the link, or updates the existing one if it has
+   already posted a comment
