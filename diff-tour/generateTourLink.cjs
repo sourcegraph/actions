@@ -37,6 +37,8 @@ const console = /** @type {any} */ (globalThis).console
 /**
  * @typedef {object} Github
  * @property {object} rest
+ * @property {object} rest.pulls
+ * @property {(params: {owner: string, repo: string, pull_number: number}) => Promise<{data: PullRequest}>} rest.pulls.get
  * @property {object} rest.issues
  * @property {(params: {owner: string, repo: string, issue_number: number}) => Promise<{data: Comment[]}>} rest.issues.listComments
  * @property {(params: {owner: string, repo: string, comment_id: number, body: string}) => Promise<unknown>} rest.issues.updateComment
@@ -56,14 +58,22 @@ const diffTourCommentMarker = "<!-- difftour-link -->"
 
 /** @param {GenerateTourLinkArgs} args */
 async function generateTourLink({ github, context }) {
-	const pullRequest = context.payload.pull_request
-	if (pullRequest === undefined) {
+	const pullRequestNumber = context.payload.pull_request?.number
+	if (pullRequestNumber === undefined) {
 		return
 	}
 
+	const { repo, owner } = context.repo
+	// Fetch the PR rather than trusting the webhook payload: the payload can be
+	// stale if the base was retargeted or the head force-pushed concurrently.
+	const { data: pullRequest } = await github.rest.pulls.get({
+		owner,
+		repo,
+		pull_number: pullRequestNumber,
+	})
+
 	/** @type {string} */
 	let url
-	const { repo, owner } = context.repo
 	// Sourcegraph's /r/<name> route looks the name up literally, and repos are
 	// named by their full code host path, e.g. github.com/sourcegraph/docs.
 	// serverUrl is GITHUB_SERVER_URL, so this also works on GitHub Enterprise.

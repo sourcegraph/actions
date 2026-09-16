@@ -7,8 +7,9 @@ Generates a link to the Diff Tour for a PR and posts it as a PR comment.
 ```yaml
 on:
   pull_request:
+    # `edited` fires when the base branch changes; `synchronize` does not.
     # `closed` fires on merge, so the comment is updated to link the merge commit
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize, reopened, edited, closed]
 
 permissions:
   pull-requests: write
