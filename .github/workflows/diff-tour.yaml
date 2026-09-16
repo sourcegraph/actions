@@ -1,0 +1,23 @@
+name: Diff Tour link
+
+on:
+  pull_request:
+    # `closed` fires on merge, so the comment is updated to link the merge commit
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  diff-tour:
+    runs-on: ubuntu-latest
+    # Diff Tour resolves branch names against the base repo, so skip fork PRs.
+    # Closed PRs only need an update when they were merged.
+    if: >
+      github.event.pull_request.head.repo.full_name == github.repository
+      && (github.event.action != 'closed' || github.event.pull_request.merged)
+    steps:
+      # A local `uses: ./path` needs the repo checked out first
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Use this repo's copy so PRs to diff-tour exercise their own changes
+      - uses: ./diff-tour
