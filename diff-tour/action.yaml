@@ -4,7 +4,9 @@ description: Generate a link to the Diff Tour based on a PR.
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    # No checkout: the script is loaded from github.action_path, which is the
+    # runner's copy of this action, not the calling repo. That keeps the action
+    # working with only `pull-requests: write` (no `contents: read`).
     - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       with:
         script: |
