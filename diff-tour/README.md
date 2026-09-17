@@ -9,7 +9,7 @@ on:
   pull_request:
     # `edited` fires when the base branch changes; `synchronize` does not.
     # `closed` fires on merge, so the comment is updated to link the merge commit
-    types: [opened, synchronize, reopened, edited, closed]
+    types: [closed, edited, opened, reopened, synchronize]
 
 # The only permission needed. The action does not check out your repo, so
 # `contents: read` is not required, even for private repos.
