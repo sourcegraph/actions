@@ -3,7 +3,8 @@ name: Diff Tour link
 on:
   pull_request:
     # `edited` fires when the base branch changes; `synchronize` does not.
-    # `closed` fires on merge, so the comment is updated to link the merge commit
+    # `closed` fires on merge and on plain close; either way the comment is
+    # updated to a link that survives deleting the head branch.
     types: [closed, edited, opened, reopened, synchronize]
 
 permissions:
@@ -13,10 +14,7 @@ jobs:
   diff-tour:
     runs-on: ubuntu-latest
     # Diff Tour resolves branch names against the base repo, so skip fork PRs.
-    # Closed PRs only need an update when they were merged.
-    if: >
-      github.event.pull_request.head.repo.full_name == github.repository
-      && (github.event.action != 'closed' || github.event.pull_request.merged)
+    if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
       # This repo differs from consumers: it runs its own copy of the action
       # via a local path so PRs to diff-tour exercise their own changes. Local
