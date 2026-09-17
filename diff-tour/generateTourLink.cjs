@@ -18,7 +18,7 @@ const console = /** @type {any} */ (globalThis).console
  * @property {"open" | "closed"} state
  * @property {boolean} merged
  * @property {string} merge_commit_sha
- * @property {{ref: string}} base
+ * @property {{ref: string, sha: string}} base
  * @property {{ref: string, sha: string}} head
  */
 
@@ -86,20 +86,19 @@ async function generateTourLink({ github, context }) {
 		const commit = encodeURIComponent(pullRequest.merge_commit_sha)
 		url = `${instance}/r/${repoLink}/-/commit/${commit}?mode=Tour`
 	} else {
-		// Compare base...head. The base branch must exist in this repo, which is
-		// why the workflow `if:` skips fork PRs.
+		// Compare base...head. Both must resolve in this repo, which is why the
+		// workflow `if:` skips fork PRs.
 		//
-		// Open PR: link the head branch by name.
-		// Closed without merging: the head branch is usually deleted, so link the
-		// head commit by SHA instead. GitHub keeps it reachable via
-		// refs/pull/<n>/head, which Sourcegraph mirrors.
-		const base = encodeURIComponent(pullRequest.base.ref)
-		const head = encodeURIComponent(
+		// Open PR: compare the branches by name.
+		// Closed without merging: the head branch is usually deleted and the base
+		// branch moves on, so pin both sides to the commits the PR was at when it
+		// closed. GitHub keeps the head commit reachable via refs/pull/<n>/head,
+		// which Sourcegraph mirrors.
+		const [base, head] =
 			pullRequest.state === "closed"
-				? pullRequest.head.sha
-				: pullRequest.head.ref,
-		)
-		url = `${instance}/r/${repoLink}/-/compare/${base}...${head}?mode=Tour`
+				? [pullRequest.base.sha, pullRequest.head.sha]
+				: [pullRequest.base.ref, pullRequest.head.ref]
+		url = `${instance}/r/${repoLink}/-/compare/${encodeURIComponent(base)}...${encodeURIComponent(head)}?mode=Tour`
 	}
 
 	const { data: comments } = await github.rest.issues.listComments({
