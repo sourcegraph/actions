@@ -24,6 +24,7 @@ permissions:
 
 jobs:
   diff-tour:
+    name: Diff Tour link comment
     runs-on: ubuntu-latest
     # Diff Tour resolves branch names against the base repo, so skip fork PRs
     if: github.event.pull_request.head.repo.full_name == github.repository
