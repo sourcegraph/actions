@@ -15,10 +15,11 @@ const console = /** @type {any} */ (globalThis).console
 /**
  * @typedef {object} PullRequest
  * @property {number} number
+ * @property {"open" | "closed"} state
  * @property {boolean} merged
  * @property {string} merge_commit_sha
- * @property {{ref: string}} base
- * @property {{ref: string}} head
+ * @property {{ref: string, sha: string}} base
+ * @property {{ref: string, sha: string}} head
  */
 
 /**
@@ -37,6 +38,8 @@ const console = /** @type {any} */ (globalThis).console
 /**
  * @typedef {object} Github
  * @property {object} rest
+ * @property {object} rest.pulls
+ * @property {(params: {owner: string, repo: string, pull_number: number}) => Promise<{data: PullRequest}>} rest.pulls.get
  * @property {object} rest.issues
  * @property {(params: {owner: string, repo: string, issue_number: number}) => Promise<{data: Comment[]}>} rest.issues.listComments
  * @property {(params: {owner: string, repo: string, comment_id: number, body: string}) => Promise<unknown>} rest.issues.updateComment
@@ -56,14 +59,22 @@ const diffTourCommentMarker = "<!-- difftour-link -->"
 
 /** @param {GenerateTourLinkArgs} args */
 async function generateTourLink({ github, context }) {
-	const pullRequest = context.payload.pull_request
-	if (pullRequest === undefined) {
+	const pullRequestNumber = context.payload.pull_request?.number
+	if (pullRequestNumber === undefined) {
 		return
 	}
 
+	const { repo, owner } = context.repo
+	// Fetch the PR rather than trusting the webhook payload: the payload can be
+	// stale if the base was retargeted or the head force-pushed concurrently.
+	const { data: pullRequest } = await github.rest.pulls.get({
+		owner,
+		repo,
+		pull_number: pullRequestNumber,
+	})
+
 	/** @type {string} */
 	let url
-	const { repo, owner } = context.repo
 	// Sourcegraph's /r/<name> route looks the name up literally, and repos are
 	// named by their full code host path, e.g. github.com/sourcegraph/docs.
 	// serverUrl is GITHUB_SERVER_URL, so this also works on GitHub Enterprise.
@@ -75,11 +86,19 @@ async function generateTourLink({ github, context }) {
 		const commit = encodeURIComponent(pullRequest.merge_commit_sha)
 		url = `${instance}/r/${repoLink}/-/commit/${commit}?mode=Tour`
 	} else {
-		// Open PR: compare base...head by branch name. Both branches must exist
-		// in this repo, which is why the workflow `if:` skips fork PRs.
-		const base = encodeURIComponent(pullRequest.base.ref)
-		const head = encodeURIComponent(pullRequest.head.ref)
-		url = `${instance}/r/${repoLink}/-/compare/${base}...${head}?mode=Tour`
+		// Compare base...head. Both must resolve in this repo, which is why the
+		// workflow `if:` skips fork PRs.
+		//
+		// Open PR: compare the branches by name.
+		// Closed without merging: the head branch is usually deleted and the base
+		// branch moves on, so pin both sides to the commits the PR was at when it
+		// closed. GitHub keeps the head commit reachable via refs/pull/<n>/head,
+		// which Sourcegraph mirrors.
+		const [base, head] =
+			pullRequest.state === "closed"
+				? [pullRequest.base.sha, pullRequest.head.sha]
+				: [pullRequest.base.ref, pullRequest.head.ref]
+		url = `${instance}/r/${repoLink}/-/compare/${encodeURIComponent(base)}...${encodeURIComponent(head)}?mode=Tour`
 	}
 
 	const { data: comments } = await github.rest.issues.listComments({
