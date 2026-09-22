@@ -10,6 +10,8 @@ Generates a link to the Diff Tour for a PR and posts it as a PR comment.
 # Please make fixes / enhancements in the shared action,
 # so all of our repos get the benefits
 
+name: Diff Tour link
+
 on:
   pull_request:
     # `edited` fires when the base branch changes; `synchronize` does not
@@ -24,7 +26,7 @@ permissions:
 
 jobs:
   diff-tour:
-    name: Diff Tour link comment
+    name: Comment
     runs-on: ubuntu-latest
     # Diff Tour resolves branch names against the base repo, so skip fork PRs
     if: github.event.pull_request.head.repo.full_name == github.repository
