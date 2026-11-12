@@ -18,6 +18,20 @@ inputs:
     description: 'Comma-separated list of module path prefixes for GOPRIVATE'
     required: false
     default: ''
+  cache:
+    description: >-
+      Use actions/setup-go's built-in module and build cache. Set to false when
+      the workflow manages its own cache, e.g. because several jobs on the same
+      OS would otherwise share one cache key.
+    required: false
+    default: 'true'
+  cache-dependency-path:
+    description: >-
+      Glob(s) of files whose hash forms the cache key, one per line. Defaults
+      to go.sum in the repository root; set it when nested modules have their
+      own go.sum.
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -27,6 +41,8 @@ runs:
       with:
         go-version: ${{ inputs.go-version || '' }}
         go-version-file: ${{ inputs.go-version == '' && inputs.go-version-file || '' }}
+        cache: ${{ inputs.cache }}
+        cache-dependency-path: ${{ inputs.cache-dependency-path }}
 
     - name: Configure git for private repos
       if: inputs.private-token != ''
